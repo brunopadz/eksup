@@ -22,7 +22,7 @@ func init() {
 
 func test(cmd *cobra.Command, _ []string) error {
 
-	c, err := awsClient.NewClient("us-east-1")
+	c, err := awsClient.NewClient()
 	if err != nil {
 		log.Fatalln(err)
 	}

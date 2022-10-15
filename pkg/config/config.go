@@ -9,4 +9,6 @@ aws:
     # Remove the following lines if using AWS access and secret key credentials
     profile: true
     profileName: sso_profile
+  # Set the region where the EKS cluster is located
+  region: us-east-1
 `
