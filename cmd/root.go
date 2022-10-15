@@ -1,9 +1,9 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"log"
 	"os"
 )
 
@@ -35,15 +35,16 @@ func initConfig() {
 
 	viper.AutomaticEnv()
 
-	if err := viper.ReadInConfig(); err == nil {
-		log.Fatalf("Unable to load ueks config file, err %s", err)
+	err := viper.ReadInConfig()
+	if err != nil {
+		fmt.Printf("Error reading config file: %s\n", err)
 	}
 }
 
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
-		log.Fatal(err.Error())
+		fmt.Printf(err.Error())
 		os.Exit(1)
 	}
 }
