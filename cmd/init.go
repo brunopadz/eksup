@@ -1,13 +1,12 @@
 package cmd
 
 import (
+	"fmt"
+	"github.com/spf13/cobra"
 	"os"
 	"ueks/pkg/config"
-
-	"github.com/spf13/cobra"
 )
 
-// initCmd represents the configure command
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "A brief description of your command",
@@ -28,11 +27,13 @@ func runInit(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 	defer create.Close()
+	fmt.Printf("Generating ueks config file at %s\n", path)
 
 	_, err = create.WriteString(config.SampleCfg)
 	if err != nil {
 		return err
 	}
 
-	return err
+	fmt.Println("Config file created. Edit it configure AWS authentication method.")
+	return nil
 }
