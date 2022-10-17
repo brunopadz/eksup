@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/eks"
 	"github.com/spf13/viper"
+	"log"
 	"os"
 )
 
@@ -32,7 +34,7 @@ func NewClient() (aws.Config, error) {
 		if err != nil {
 			fmt.Printf("Error while trying to authenticate to AWS using SSO credentials: %s\n", err)
 		}
-		
+
 		return cfg, err
 
 	} else {
@@ -41,4 +43,15 @@ func NewClient() (aws.Config, error) {
 	}
 
 	return aws.Config{}, nil
+}
+
+func NewEksClient() *eks.Client {
+	cfg, err := NewClient()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	clt := eks.NewFromConfig(cfg)
+
+	return clt
 }
