@@ -11,6 +11,7 @@ var initCmd = &cobra.Command{
 	Use:     "init",
 	Aliases: []string{"i"},
 	Short:   "Generates a .ueks.yaml config file",
+	Example: "ueks init",
 	RunE:    runInit,
 }
 
