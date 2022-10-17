@@ -8,9 +8,11 @@ import (
 )
 
 var initCmd = &cobra.Command{
-	Use:   "init",
-	Short: "A brief description of your command",
-	RunE:  runInit,
+	Use:     "init",
+	Aliases: []string{"i"},
+	Short:   "Generates a .ueks.yaml config file",
+	Example: "ueks init",
+	RunE:    runInit,
 }
 
 func init() {

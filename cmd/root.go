@@ -10,8 +10,19 @@ import (
 var cfgFile string
 
 var rootCmd = &cobra.Command{
-	Use:   "ueks",
-	Short: "Upgrading EKS made easy",
+	Use: "ueks",
+	Short: `
+                      █████             
+                     ▒▒███              
+  █████ ████  ██████  ▒███ █████  █████ 
+ ▒▒███ ▒███  ███▒▒███ ▒███▒▒███  ███▒▒  
+  ▒███ ▒███ ▒███████  ▒██████▒  ▒▒█████ 
+  ▒███ ▒███ ▒███▒▒▒   ▒███▒▒███  ▒▒▒▒███
+  ▒▒████████▒▒██████  ████ █████ ██████ 
+   ▒▒▒▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒▒  
+                                        
+         EKS upgrading made easy
+`,
 }
 
 func init() {

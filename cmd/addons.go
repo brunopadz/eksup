@@ -6,10 +6,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// addonsCmd represents the addons command
 var addonsCmd = &cobra.Command{
-	Use:   "addons",
-	Short: "A brief description of your command",
+	Use:     "addons",
+	Aliases: []string{"a"},
+	Short:   "Check current add-ons version and which can be upgraded",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("addons called")
 	},

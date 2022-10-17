@@ -9,7 +9,6 @@ import (
 	"ueks/pkg/provider/aws"
 )
 
-// checkCmd represents the check command
 var checkCmd = &cobra.Command{
 	Use:   "check",
 	Short: "A brief description of your command",
