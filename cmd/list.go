@@ -5,7 +5,7 @@ import (
 )
 
 var listCmd = &cobra.Command{
-	Use:   "check",
+	Use:   "list",
 	Short: "A brief description of your command",
 }
 
