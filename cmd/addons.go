@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/eks"
 	"github.com/spf13/cobra"
 	"log"
@@ -16,21 +17,16 @@ var addonsCmd = &cobra.Command{
 	RunE:    listAddons,
 }
 
+var (
+	clusters []string
+	version  bool
+)
+
 func init() {
 	listCmd.AddCommand(addonsCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// addonsCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// addonsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	addonsCmd.Flags().BoolVarP(&version, "version", "v", false, "List versions")
 }
-
-var clusters []string
 
 func getClusters(clt *eks.Client) ([]string, error) {
 	i := &eks.ListClustersInput{
@@ -52,36 +48,62 @@ func getClusters(clt *eks.Client) ([]string, error) {
 }
 
 func listAddons(cmd *cobra.Command, args []string) error {
-	//cfg, err := awsClient.NewClient()
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
-	//
-	//clt := eks.NewFromConfig(cfg)
+	s := awsClient.NewEksClient()
 
-	clt := awsClient.NewEksClient()
-
-	c, err := getClusters(clt)
+	c, err := getClusters(s)
 	if err != nil {
-		fmt.Println("eita")
+		fmt.Println("Couldn't get clusters. Error:", err)
 	}
 
-	for _, v := range c {
-		fmt.Println(v)
-	}
+	if version != true {
+		for _, n := range c {
+			fmt.Println("Listing add-ons for cluster:", n)
 
-	//for _, v := range c {
-	//	fmt.Println("Listing add-ons for", v)
-	//
-	//	i := eks.ListAddonsInput{
-	//		ClusterName: &v,
-	//	}
-	//
-	//	for _, a := range i {
-	//
-	//	}
-	//
-	//}
+			i := eks.ListAddonsInput{
+				ClusterName: &n,
+			}
+
+			a, err := s.ListAddons(context.TODO(), &i)
+			if err != nil {
+				fmt.Println("Couldn't list add-ons for clusters. Error:", err)
+			}
+
+			for _, v := range a.Addons {
+				fmt.Println(v)
+			}
+
+		}
+	} else {
+		for _, n := range c {
+			fmt.Println("Listing add-ons for cluster:", n)
+
+			i := eks.ListAddonsInput{
+				ClusterName: &n,
+			}
+
+			a, err := s.ListAddons(context.TODO(), &i)
+			if err != nil {
+				fmt.Println("Couldn't list add-ons for clusters. Error:", err)
+			}
+
+			for _, v := range a.Addons {
+
+				i := eks.DescribeAddonInput{
+					ClusterName: &n,
+					AddonName:   &v,
+				}
+
+				d, err := s.DescribeAddon(context.TODO(), &i)
+				if err != nil {
+					fmt.Println("Couldn't list add-ons for clusters. Error:", err)
+				}
+
+				fmt.Println(aws.ToString(d.Addon.AddonName), "\t...\t", aws.ToString(d.Addon.AddonVersion))
+
+			}
+
+		}
+	}
 
 	return err
 }
