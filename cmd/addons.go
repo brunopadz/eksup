@@ -6,14 +6,14 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/eks"
 	"github.com/spf13/cobra"
-	"log"
+	"os"
 	awsClient "ueks/pkg/provider/aws"
 )
 
 var addonsCmd = &cobra.Command{
 	Use:     "addons",
 	Aliases: []string{"a"},
-	Short:   "Check current add-ons version and which can be upgraded",
+	Short:   "List current add-ons versions and which can be upgraded",
 	RunE:    listAddons,
 }
 
@@ -25,7 +25,7 @@ var (
 func init() {
 	listCmd.AddCommand(addonsCmd)
 
-	addonsCmd.Flags().BoolVarP(&version, "version", "v", false, "List versions")
+	addonsCmd.Flags().BoolVarP(&version, "version", "v", false, "List current versions for all add-ons installed in the cluster")
 }
 
 func getClusters(clt *eks.Client) ([]string, error) {
@@ -37,7 +37,7 @@ func getClusters(clt *eks.Client) ([]string, error) {
 
 	l, err := clt.ListClusters(context.TODO(), i)
 	if err != nil {
-		log.Fatalln(err)
+		fmt.Println(err)
 	}
 
 	for _, v := range l.Clusters {
@@ -87,7 +87,6 @@ func listAddons(cmd *cobra.Command, args []string) error {
 			}
 
 			for _, v := range a.Addons {
-
 				i := eks.DescribeAddonInput{
 					ClusterName: &n,
 					AddonName:   &v,
@@ -98,10 +97,27 @@ func listAddons(cmd *cobra.Command, args []string) error {
 					fmt.Println("Couldn't list add-ons for clusters. Error:", err)
 				}
 
-				fmt.Println(aws.ToString(d.Addon.AddonName), "\t...\t", aws.ToString(d.Addon.AddonVersion))
+				iu := eks.DescribeAddonVersionsInput{
+					AddonName:         &v,
+					KubernetesVersion: nil,
+					MaxResults:        nil,
+					NextToken:         nil,
+				}
+				u, err := s.DescribeAddonVersions(context.TODO(), &iu)
+				if err != nil {
+					fmt.Println("Error while trying to find versions. Error:", err)
+					os.Exit(1)
+				}
 
+				for _, w := range u.Addons {
+					for k1, v1 := range w.AddonVersions {
+						if k1 == 0 {
+							fmt.Println(aws.ToString(w.AddonName), "\t...\t", aws.ToString(d.Addon.AddonVersion), "↑", aws.ToString(v1.AddonVersion))
+						}
+					}
+
+				}
 			}
-
 		}
 	}
 

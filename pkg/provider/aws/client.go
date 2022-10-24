@@ -27,7 +27,7 @@ func NewClient() (aws.Config, error) {
 	} else if viper.GetString("aws.auth.profile") == "true" {
 		cfg, err := config.LoadDefaultConfig(
 			context.TODO(),
-			config.WithSharedConfigProfile(viper.GetString("aws.auth")),
+			config.WithSharedConfigProfile(viper.GetString("aws.auth.profileName")),
 			config.WithRegion(viper.GetString("aws.region")),
 			config.WithRetryMaxAttempts(3),
 		)
