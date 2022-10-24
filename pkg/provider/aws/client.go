@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/eks"
 	"github.com/spf13/viper"
 	"os"
 )
@@ -17,7 +18,8 @@ func NewClient() (aws.Config, error) {
 			config.WithRetryMaxAttempts(3),
 		)
 		if err != nil {
-			fmt.Printf("Error while trying to authenticate to AWS using credentials: %s\n", err)
+			fmt.Println("Error while trying to authenticate to AWS using credentials. Error:", err)
+			os.Exit(1)
 		}
 
 		return cfg, err
@@ -25,14 +27,15 @@ func NewClient() (aws.Config, error) {
 	} else if viper.GetString("aws.auth.profile") == "true" {
 		cfg, err := config.LoadDefaultConfig(
 			context.TODO(),
-			config.WithSharedConfigProfile(viper.GetString("aws.auth")),
+			config.WithSharedConfigProfile(viper.GetString("aws.auth.profileName")),
 			config.WithRegion(viper.GetString("aws.region")),
 			config.WithRetryMaxAttempts(3),
 		)
 		if err != nil {
-			fmt.Printf("Error while trying to authenticate to AWS using SSO credentials: %s\n", err)
+			fmt.Println("Error while trying to authenticate to AWS using SSO credentials. Error: ", err)
+			os.Exit(1)
 		}
-		
+
 		return cfg, err
 
 	} else {
@@ -41,4 +44,15 @@ func NewClient() (aws.Config, error) {
 	}
 
 	return aws.Config{}, nil
+}
+
+func NewEksClient() *eks.Client {
+	cfg, err := NewClient()
+	if err != nil {
+		fmt.Println("Couldn't create a client to EKS service. Error:", err)
+	}
+
+	clt := eks.NewFromConfig(cfg)
+
+	return clt
 }
