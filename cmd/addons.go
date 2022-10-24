@@ -112,10 +112,13 @@ func listAddons(cmd *cobra.Command, args []string) error {
 				for _, w := range u.Addons {
 					for k1, v1 := range w.AddonVersions {
 						if k1 == 0 {
-							fmt.Println(aws.ToString(w.AddonName), "\t...\t", aws.ToString(d.Addon.AddonVersion), "↑", aws.ToString(v1.AddonVersion))
+							if aws.ToString(d.Addon.AddonVersion) == aws.ToString(v1.AddonVersion) {
+								fmt.Println(aws.ToString(w.AddonName), "\t...\t", aws.ToString(d.Addon.AddonVersion), "Already on latest version.")
+							} else {
+								fmt.Println(aws.ToString(w.AddonName), "\t...\t", aws.ToString(d.Addon.AddonVersion), "↑", aws.ToString(v1.AddonVersion))
+							}
 						}
 					}
-
 				}
 			}
 		}
