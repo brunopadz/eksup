@@ -56,3 +56,24 @@ func NewEksClient() *eks.Client {
 
 	return clt
 }
+
+var clusters []string
+
+func GetClusters(clt *eks.Client) ([]string, error) {
+	i := &eks.ListClustersInput{
+		Include:    []string{"all"},
+		MaxResults: nil,
+		NextToken:  nil,
+	}
+
+	l, err := clt.ListClusters(context.TODO(), i)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for _, v := range l.Clusters {
+		clusters = append(clusters, v)
+	}
+
+	return clusters, err
+}
