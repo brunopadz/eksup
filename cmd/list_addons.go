@@ -24,7 +24,7 @@ var (
 func init() {
 	listCmd.AddCommand(addonsCmd)
 
-	addonsCmd.Flags().BoolVarP(&version, "version", "v", false, "List current versions for all add-ons installed in the cluster")
+	addonsCmd.Flags().BoolVarP(&version, "check", "c", false, "Check for updates")
 }
 
 func listAddons(cmd *cobra.Command, args []string) error {
