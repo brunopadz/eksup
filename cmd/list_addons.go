@@ -18,39 +18,19 @@ var addonsCmd = &cobra.Command{
 }
 
 var (
-	clusters []string
-	version  bool
+	version bool
 )
 
 func init() {
 	listCmd.AddCommand(addonsCmd)
 
-	addonsCmd.Flags().BoolVarP(&version, "version", "v", false, "List current versions for all add-ons installed in the cluster")
-}
-
-func getClusters(clt *eks.Client) ([]string, error) {
-	i := &eks.ListClustersInput{
-		Include:    []string{"all"},
-		MaxResults: nil,
-		NextToken:  nil,
-	}
-
-	l, err := clt.ListClusters(context.TODO(), i)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	for _, v := range l.Clusters {
-		clusters = append(clusters, v)
-	}
-
-	return clusters, err
+	addonsCmd.Flags().BoolVarP(&version, "check", "c", false, "Check for updates")
 }
 
 func listAddons(cmd *cobra.Command, args []string) error {
 	s := awsClient.NewEksClient()
 
-	c, err := getClusters(s)
+	c, err := awsClient.GetClusters(s)
 	if err != nil {
 		fmt.Println("Couldn't get clusters. Error:", err)
 	}
@@ -75,18 +55,27 @@ func listAddons(cmd *cobra.Command, args []string) error {
 		}
 	} else {
 		for _, n := range c {
+			clusterInput := eks.DescribeClusterInput{
+				Name: &n,
+			}
+
+			clusterGet, err := s.DescribeCluster(context.TODO(), &clusterInput)
+			if err != nil {
+				fmt.Println("Couldn't describe current cluster")
+			}
+
 			fmt.Println("Listing add-ons for cluster:", n)
 
-			i := eks.ListAddonsInput{
+			addonsInput := eks.ListAddonsInput{
 				ClusterName: &n,
 			}
 
-			a, err := s.ListAddons(context.TODO(), &i)
+			addonsList, err := s.ListAddons(context.TODO(), &addonsInput)
 			if err != nil {
 				fmt.Println("Couldn't list add-ons for clusters. Error:", err)
 			}
 
-			for _, v := range a.Addons {
+			for _, v := range addonsList.Addons {
 				i := eks.DescribeAddonInput{
 					ClusterName: &n,
 					AddonName:   &v,
@@ -99,7 +88,7 @@ func listAddons(cmd *cobra.Command, args []string) error {
 
 				iu := eks.DescribeAddonVersionsInput{
 					AddonName:         &v,
-					KubernetesVersion: nil,
+					KubernetesVersion: clusterGet.Cluster.Version,
 					MaxResults:        nil,
 					NextToken:         nil,
 				}
