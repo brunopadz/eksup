@@ -2,12 +2,12 @@ package cmd
 
 import (
 	"context"
+	awsClient "eksup/pkg/provider/aws"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/eks"
 	"github.com/spf13/cobra"
 	"os"
-	awsClient "ueks/pkg/provider/aws"
 )
 
 var addonsCmd = &cobra.Command{

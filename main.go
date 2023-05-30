@@ -1,6 +1,6 @@
 package main
 
-import "ueks/cmd"
+import "eksup/cmd"
 
 func main() {
 	cmd.Execute()

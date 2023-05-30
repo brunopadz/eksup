@@ -1,17 +1,17 @@
 package cmd
 
 import (
+	"eksup/pkg/config"
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
-	"ueks/pkg/config"
 )
 
 var initCmd = &cobra.Command{
 	Use:     "init",
 	Aliases: []string{"i"},
-	Short:   "Generates a .ueks.yaml config file",
-	Example: "ueks init",
+	Short:   "Generates a .eksup.yaml config file",
+	Example: "eksup init",
 	RunE:    runInit,
 }
 
@@ -21,21 +21,21 @@ func init() {
 
 func runInit(cmd *cobra.Command, _ []string) error {
 	home, _ := os.UserHomeDir()
-	file := "/.ueks.yaml"
+	file := "/.eksup.yaml"
 	path := home + file
 
 	create, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o644)
 	if err != nil {
-		return err
+		fmt.Println("Config file does not exist, creating it...")
 	}
 	defer create.Close()
-	fmt.Printf("Generating ueks config file at %s\n", path)
+	fmt.Printf("Generating eksup config file at %s\n", path)
 
 	_, err = create.WriteString(config.SampleCfg)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("Config file created. Edit it configure AWS authentication method.")
+	fmt.Println("Config file created. Edit it in order to configure the AWS authentication method.")
 	return nil
 }
