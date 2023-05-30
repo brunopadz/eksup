@@ -10,17 +10,15 @@ import (
 var cfgFile string
 
 var rootCmd = &cobra.Command{
-	Use: "ueks",
+	Use: "eksup",
 	Short: `
-                      █████             
-                     ▒▒███              
-  █████ ████  ██████  ▒███ █████  █████ 
- ▒▒███ ▒███  ███▒▒███ ▒███▒▒███  ███▒▒  
-  ▒███ ▒███ ▒███████  ▒██████▒  ▒▒█████ 
-  ▒███ ▒███ ▒███▒▒▒   ▒███▒▒███  ▒▒▒▒███
-  ▒▒████████▒▒██████  ████ █████ ██████ 
-   ▒▒▒▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒▒  
-                                        
+	███████╗██╗  ██╗███████╗██╗   ██╗██████╗ 
+	██╔════╝██║ ██╔╝██╔════╝██║   ██║██╔══██╗
+	█████╗  █████╔╝ ███████╗██║   ██║██████╔╝
+	██╔══╝  ██╔═██╗ ╚════██║██║   ██║██╔═══╝ 
+	███████╗██║  ██╗███████║╚██████╔╝██║     
+	╚══════╝╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝     
+	                                        
          EKS upgrading made easy
 `,
 }
@@ -28,7 +26,7 @@ var rootCmd = &cobra.Command{
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ueks.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.eksup.yaml)")
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
@@ -41,7 +39,7 @@ func initConfig() {
 
 		viper.AddConfigPath(home)
 		viper.SetConfigType("yaml")
-		viper.SetConfigName(".ueks")
+		viper.SetConfigName(".eksup")
 	}
 
 	viper.AutomaticEnv()
