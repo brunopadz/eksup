@@ -38,8 +38,10 @@ func NewClient() (aws.Config, error) {
 
 		return cfg, err
 
+	} else if viper.GetString("aws.auth.credentials") == viper.GetString("aws.auth.profile") {
+		fmt.Println("You can't use both credentials and profile authentication methods at the same time.")
 	} else {
-		fmt.Println("Couldn't find a specified auth method.")
+		fmt.Println("Couldn't find a specified authentication method.")
 		os.Exit(1)
 	}
 

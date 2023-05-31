@@ -17,10 +17,6 @@ var addonsCmd = &cobra.Command{
 	RunE:    listAddons,
 }
 
-var (
-	version bool
-)
-
 func init() {
 	listCmd.AddCommand(addonsCmd)
 
@@ -37,7 +33,7 @@ func listAddons(cmd *cobra.Command, args []string) error {
 
 	if version != true {
 		for _, n := range c {
-			fmt.Println("Listing add-ons for cluster:", n)
+			fmt.Println("Listing installed add-ons for cluster:", n)
 
 			i := eks.ListAddonsInput{
 				ClusterName: &n,
@@ -102,9 +98,9 @@ func listAddons(cmd *cobra.Command, args []string) error {
 					for k1, v1 := range w.AddonVersions {
 						if k1 == 0 {
 							if aws.ToString(d.Addon.AddonVersion) == aws.ToString(v1.AddonVersion) {
-								fmt.Println(aws.ToString(w.AddonName), "\t...\t", aws.ToString(d.Addon.AddonVersion), "Already on latest version.")
+								fmt.Println(aws.ToString(w.AddonName), "is running version:", styleGreen.Render(aws.ToString(d.Addon.AddonVersion)), "and is up to date.")
 							} else {
-								fmt.Println(aws.ToString(w.AddonName), "\t...\t", aws.ToString(d.Addon.AddonVersion), "↑", aws.ToString(v1.AddonVersion))
+								fmt.Println(aws.ToString(w.AddonName), "is running version:", styleRed.Render(aws.ToString(d.Addon.AddonVersion)), "and can be upgraded to version:", styleBlue.Render(aws.ToString(v1.AddonVersion)))
 							}
 						}
 					}

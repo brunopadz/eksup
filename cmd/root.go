@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
@@ -22,6 +23,16 @@ var rootCmd = &cobra.Command{
          EKS upgrading made easy
 `,
 }
+
+var (
+	version  bool
+	styleRed = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#ff4765"))
+	styleGreen = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#66ff33"))
+	styleBlue = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#00b4ff"))
+)
 
 func init() {
 	cobra.OnInitialize(initConfig)
