@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-func NewClient() (aws.Config, error) {
+func loadClientConfig() (aws.Config, error) {
 	if viper.GetString("aws.auth.credentials") == "true" {
 		cfg, err := config.LoadDefaultConfig(
 			context.TODO(),
@@ -38,16 +38,18 @@ func NewClient() (aws.Config, error) {
 
 		return cfg, err
 
+	} else if viper.GetString("aws.auth.credentials") == viper.GetString("aws.auth.profile") {
+		fmt.Println("You can't use both credentials and profile authentication methods at the same time.")
 	} else {
-		fmt.Println("Couldn't find a specified auth method.")
+		fmt.Println("Couldn't find a specified authentication method.")
 		os.Exit(1)
 	}
 
 	return aws.Config{}, nil
 }
 
-func NewEksClient() *eks.Client {
-	cfg, err := NewClient()
+func newEksClient() *eks.Client {
+	cfg, err := loadClientConfig()
 	if err != nil {
 		fmt.Println("Couldn't create a client to EKS service. Error:", err)
 	}
@@ -59,7 +61,7 @@ func NewEksClient() *eks.Client {
 
 var clusters []string
 
-func GetClusters(clt *eks.Client) ([]string, error) {
+func getClusters(clt *eks.Client) ([]string, error) {
 	i := &eks.ListClustersInput{
 		Include:    []string{"all"},
 		MaxResults: nil,
@@ -76,4 +78,15 @@ func GetClusters(clt *eks.Client) ([]string, error) {
 	}
 
 	return clusters, err
+}
+
+func Initialize() (*eks.Client, []string, error) {
+	e := newEksClient()
+
+	c, err := getClusters(e)
+	if err != nil {
+		fmt.Println("Couldn't get clusters. Error:", err)
+	}
+
+	return e, c, err
 }

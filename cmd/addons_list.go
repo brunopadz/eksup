@@ -10,40 +10,33 @@ import (
 	"os"
 )
 
-var addonsCmd = &cobra.Command{
-	Use:     "addons",
-	Aliases: []string{"a"},
-	Short:   "List current add-ons versions and which can be upgraded",
+var addonsListCmd = &cobra.Command{
+	Use:     "list",
+	Aliases: []string{"l"},
+	Short:   "List add-ons running on EKS clusters",
+	Example: "eksup addons list",
 	RunE:    listAddons,
 }
 
-var (
-	version bool
-)
-
 func init() {
-	listCmd.AddCommand(addonsCmd)
-
-	addonsCmd.Flags().BoolVarP(&version, "check", "c", false, "Check for updates")
+	addonsCmd.AddCommand(addonsListCmd)
 }
 
 func listAddons(cmd *cobra.Command, args []string) error {
-	s := awsClient.NewEksClient()
-
-	c, err := awsClient.GetClusters(s)
+	e, c, err := awsClient.Initialize()
 	if err != nil {
-		fmt.Println("Couldn't get clusters. Error:", err)
+		fmt.Printf("Error while trying to initialize AWS client. Error: %v\n", err)
 	}
 
 	if version != true {
 		for _, n := range c {
-			fmt.Println("Listing add-ons for cluster:", n)
+			fmt.Println("Listing installed add-ons for cluster:", n)
 
 			i := eks.ListAddonsInput{
 				ClusterName: &n,
 			}
 
-			a, err := s.ListAddons(context.TODO(), &i)
+			a, err := e.ListAddons(context.TODO(), &i)
 			if err != nil {
 				fmt.Println("Couldn't list add-ons for clusters. Error:", err)
 			}
@@ -59,7 +52,7 @@ func listAddons(cmd *cobra.Command, args []string) error {
 				Name: &n,
 			}
 
-			clusterGet, err := s.DescribeCluster(context.TODO(), &clusterInput)
+			clusterGet, err := e.DescribeCluster(context.TODO(), &clusterInput)
 			if err != nil {
 				fmt.Println("Couldn't describe current cluster")
 			}
@@ -70,7 +63,7 @@ func listAddons(cmd *cobra.Command, args []string) error {
 				ClusterName: &n,
 			}
 
-			addonsList, err := s.ListAddons(context.TODO(), &addonsInput)
+			addonsList, err := e.ListAddons(context.TODO(), &addonsInput)
 			if err != nil {
 				fmt.Println("Couldn't list add-ons for clusters. Error:", err)
 			}
@@ -81,7 +74,7 @@ func listAddons(cmd *cobra.Command, args []string) error {
 					AddonName:   &v,
 				}
 
-				d, err := s.DescribeAddon(context.TODO(), &i)
+				d, err := e.DescribeAddon(context.TODO(), &i)
 				if err != nil {
 					fmt.Println("Couldn't list add-ons for clusters. Error:", err)
 				}
@@ -92,7 +85,7 @@ func listAddons(cmd *cobra.Command, args []string) error {
 					MaxResults:        nil,
 					NextToken:         nil,
 				}
-				u, err := s.DescribeAddonVersions(context.TODO(), &iu)
+				u, err := e.DescribeAddonVersions(context.TODO(), &iu)
 				if err != nil {
 					fmt.Println("Error while trying to find versions. Error:", err)
 					os.Exit(1)
@@ -102,9 +95,9 @@ func listAddons(cmd *cobra.Command, args []string) error {
 					for k1, v1 := range w.AddonVersions {
 						if k1 == 0 {
 							if aws.ToString(d.Addon.AddonVersion) == aws.ToString(v1.AddonVersion) {
-								fmt.Println(aws.ToString(w.AddonName), "\t...\t", aws.ToString(d.Addon.AddonVersion), "Already on latest version.")
+								fmt.Println(aws.ToString(w.AddonName), "is running version:", styleGreen.Render(aws.ToString(d.Addon.AddonVersion)), "and is up to date.")
 							} else {
-								fmt.Println(aws.ToString(w.AddonName), "\t...\t", aws.ToString(d.Addon.AddonVersion), "↑", aws.ToString(v1.AddonVersion))
+								fmt.Println(aws.ToString(w.AddonName), "is running version:", styleRed.Render(aws.ToString(d.Addon.AddonVersion)), "and can be upgraded to version:", styleBlue.Render(aws.ToString(v1.AddonVersion)))
 							}
 						}
 					}
