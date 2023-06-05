@@ -10,25 +10,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var clustersCmd = &cobra.Command{
-	Use:     "clusters",
-	Aliases: []string{"a"},
-	Short:   "List current add-ons versions and which can be upgraded",
+var clustersListCmd = &cobra.Command{
+	Use:     "list",
+	Aliases: []string{"l"},
+	Short:   "List EKS clusters running.",
+	Example: "eksup clusters list",
 	RunE:    listClusters,
 }
 
 func init() {
-	listCmd.AddCommand(clustersCmd)
-
-	clustersCmd.Flags().BoolVarP(&version, "check", "c", false, "Check for updates")
+	clustersCmd.AddCommand(clustersListCmd)
 }
 
 func listClusters(cmd *cobra.Command, args []string) error {
-	s := awsClient.NewEksClient()
-
-	c, err := awsClient.GetClusters(s)
+	e, c, err := awsClient.Initialize()
 	if err != nil {
-		fmt.Println("Couldn't get clusters. Error:", err)
+		fmt.Printf("Error while trying to initialize AWS client. Error: %v\n", err)
 	}
 
 	fmt.Println("List of clusters:")
@@ -39,7 +36,7 @@ func listClusters(cmd *cobra.Command, args []string) error {
 				Name: &cluster,
 			}
 
-			a, err := s.DescribeCluster(context.TODO(), &i)
+			a, err := e.DescribeCluster(context.TODO(), &i)
 			if err != nil {
 				fmt.Println("error")
 			}
@@ -57,7 +54,7 @@ func listClusters(cmd *cobra.Command, args []string) error {
 				Name: &cluster,
 			}
 
-			a, err := s.DescribeCluster(context.TODO(), &i)
+			a, err := e.DescribeCluster(context.TODO(), &i)
 			if err != nil {
 				fmt.Println("error")
 			}

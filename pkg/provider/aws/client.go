@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-func NewClient() (aws.Config, error) {
+func loadClientConfig() (aws.Config, error) {
 	if viper.GetString("aws.auth.credentials") == "true" {
 		cfg, err := config.LoadDefaultConfig(
 			context.TODO(),
@@ -48,8 +48,8 @@ func NewClient() (aws.Config, error) {
 	return aws.Config{}, nil
 }
 
-func NewEksClient() *eks.Client {
-	cfg, err := NewClient()
+func newEksClient() *eks.Client {
+	cfg, err := loadClientConfig()
 	if err != nil {
 		fmt.Println("Couldn't create a client to EKS service. Error:", err)
 	}
@@ -61,7 +61,7 @@ func NewEksClient() *eks.Client {
 
 var clusters []string
 
-func GetClusters(clt *eks.Client) ([]string, error) {
+func getClusters(clt *eks.Client) ([]string, error) {
 	i := &eks.ListClustersInput{
 		Include:    []string{"all"},
 		MaxResults: nil,
@@ -78,4 +78,15 @@ func GetClusters(clt *eks.Client) ([]string, error) {
 	}
 
 	return clusters, err
+}
+
+func Initialize() (*eks.Client, []string, error) {
+	e := newEksClient()
+
+	c, err := getClusters(e)
+	if err != nil {
+		fmt.Println("Couldn't get clusters. Error:", err)
+	}
+
+	return e, c, err
 }
